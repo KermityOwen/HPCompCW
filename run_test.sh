@@ -1,3 +1,4 @@
 /opt/homebrew/opt/llvm/bin/clang $LDFLAGS -fopenmp -o advection2d -std=c99 advection2D.c -lm
 ./advection2d
 gnuplot plot_final
+gnuplot plot_initial
