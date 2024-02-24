@@ -59,7 +59,7 @@ int main(){
   const float vely=0.0; // Velocity in y direction
 
   const float vkarman = 0.41; // Von Karman's constant
-  const float ufric = 0.12; // Friction velocity
+  const float ufric = 0.2; // Friction velocity
   const float zrough = 1.0; // Roughness constant
   
   /* Arrays to store variables. These have NX+2 elements
@@ -134,12 +134,11 @@ int main(){
   FILE *initialfile;
   initialfile = fopen("initial.dat", "w");
   /* LOOP 4 */
-  #pragma omp parallel for collapse(2)
-  {
-    for (int i=0; i<NX+2; i++){
-      for (int j=0; j<NY+2; j++){
-        fprintf(initialfile, "%g %g %g\n", x[i], y[j], u[i][j]);
-      }
+  // CANNOT BE PARALLEL - This needs to be sequential or else the file will be scrambled and out of order
+  // Reason same as LOOP 10
+  for (int i=0; i<NX+2; i++){
+    for (int j=0; j<NY+2; j++){
+      fprintf(initialfile, "%g %g %g\n", x[i], y[j], u[i][j]);
     }
   }
   fclose(initialfile);
@@ -179,10 +178,11 @@ int main(){
     {
       for (int i=1; i<NX+1; i++){
         for (int j=1; j<NY+1; j++){
-          float velx_z = (ufric / vkarman) * log(y[j]/zrough);
-          if (y[j] <= zrough){
-            velx_z = 0;
+          float velx_z = 0;
+          if (y[j] > zrough){
+            velx_z = (ufric / vkarman) * log(y[j]/zrough);
           }
+          dt = CFL / ( (fabs(velx_z) / dx) + (fabs(vely) / dy) );
           // printf("%f\n",velx_z);
           dudt[i][j] = -velx_z * (u[i][j] - u[i-1][j]) / dx
           - vely * (u[i][j] - u[i][j-1]) / dy;
@@ -210,6 +210,7 @@ int main(){
   finalfile = fopen("final.dat", "w");
   /* LOOP 10 */
   // CANNOT BE PARALLEL - This needs to be sequential or else the file will be scrambled and out of order
+  // Reason same as LOOP 4
   for (int i=0; i<NX+2; i++){
     for (int j=0; j<NY+2; j++){
       fprintf(finalfile, "%g %g %g\n", x[i], y[j], u[i][j]);
