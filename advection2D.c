@@ -130,14 +130,14 @@ int main(){
   FILE *initialfile;
   initialfile = fopen("initial.dat", "w");
   /* LOOP 4 */
-  #pragma omp parallel for collapse(2)
-  {
+  // #pragma omp parallel for collapse(2)
+  // {
     for (int i=0; i<NX+2; i++){
       for (int j=0; j<NY+2; j++){
         fprintf(initialfile, "%g %g %g\n", x[i], y[j], u[i][j]);
       }
     }
-  }
+  // }
   fclose(initialfile);
   
   /*** Update solution by looping over time steps ***/
