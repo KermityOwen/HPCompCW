@@ -134,8 +134,8 @@ int main(){
   FILE *initialfile;
   initialfile = fopen("initial.dat", "w");
   /* LOOP 4 */
-  // CANNOT BE PARALLEL - This needs to be sequential or else the file will be scrambled and out of order
-  // Reason same as LOOP 10
+  // CANNOT BE PARALLEL - If multiple threads are writing to the file at the same time 
+  // the file will be scrambled and out of order. Reason same as LOOP 10
   for (int i=0; i<NX+2; i++){
     for (int j=0; j<NY+2; j++){
       fprintf(initialfile, "%g %g %g\n", x[i], y[j], u[i][j]);
@@ -209,8 +209,8 @@ int main(){
   FILE *finalfile;
   finalfile = fopen("final.dat", "w");
   /* LOOP 10 */
-  // CANNOT BE PARALLEL - This needs to be sequential or else the file will be scrambled and out of order
-  // Reason same as LOOP 4
+  // CANNOT BE PARALLEL - If multiple threads are writing to the file at the same time 
+  // the file will be scrambled and out of order. Reason same as LOOP 4
   for (int i=0; i<NX+2; i++){
     for (int j=0; j<NY+2; j++){
       fprintf(finalfile, "%g %g %g\n", x[i], y[j], u[i][j]);
