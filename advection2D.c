@@ -57,6 +57,10 @@ int main(){
   /* Velocity */
   const float velx=1.0; // Velocity in x direction
   const float vely=0.0; // Velocity in y direction
+
+  const float vkarman = 0.41; // Von Karman's constant
+  const float ufric = 0.12; // Friction velocity
+  const float zrough = 1.0; // Roughness constant
   
   /* Arrays to store variables. These have NX+2 elements
      to allow boundary values to be stored at both ends */
@@ -170,11 +174,17 @@ int main(){
     /*** Calculate rate of change of u using leftward difference ***/
     /* Loop over points in the domain but not boundary values */
     /* LOOP 8 */
+
     #pragma omp parallel for collapse(2)
     {
       for (int i=1; i<NX+1; i++){
         for (int j=1; j<NY+1; j++){
-          dudt[i][j] = -velx * (u[i][j] - u[i-1][j]) / dx
+          float velx_z = (ufric / vkarman) * log(y[j]/zrough);
+          if (y[j] <= zrough){
+            velx_z = 0;
+          }
+          // printf("%f\n",velx_z);
+          dudt[i][j] = -velx_z * (u[i][j] - u[i-1][j]) / dx
           - vely * (u[i][j] - u[i][j-1]) / dy;
         }
       }
