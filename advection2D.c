@@ -224,9 +224,13 @@ int main(){
   FILE *ydistfile;
   ydistfile = fopen("ydist.dat", "w");
   for (int i=0; i<NX+2; i++){
+    float vert_avg = 0;
     for (int j=0; j<NY+2; j++){
-      fprintf(ydistfile, "%g %g\n", y[j], u[i][j]);
+      vert_avg += u[i][j];
+      // fprintf(ydistfile, "%g %g\n", y[j], u[i][j]);
     }
+    vert_avg = vert_avg/NY+2;
+    fprintf(ydistfile, "%g %g\n", x[i], vert_avg);
   }
   
   fclose(ydistfile);
