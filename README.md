@@ -41,10 +41,11 @@ Contains instructions for Mac and Linux. I don't know how to use C on windows so
 
 *FOR LINUX:*
 - Open terminal and CD to the "`HPCompCW`" directory
-- Run "`run_linux.sh`
+- Run "`bash run_linux.sh`
 - Will auto complile, run and plot
 
 *FOR MAC:*
+- Do the initial manual setup for llvm as listed above
 - Open terminal and CD to the "`HPCompCW`" directory
-- Run "`run_mac.sh`
+- Run "`bash run_mac.sh`
 - Will auto complile, run and plot
