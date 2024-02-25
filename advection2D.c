@@ -32,15 +32,15 @@ int main(){
   const int NX=1000;    // Number of x points
   const int NY=1000;    // Number of y points
   const float xmin=0.0; // Minimum x value
-  const float xmax=1.0; // Maximum x value
+  const float xmax=30.0; // Maximum x value
   const float ymin=0.0; // Minimum y value
-  const float ymax=1.0; // Maximum y value
+  const float ymax=30.0; // Maximum y value
   
   /* Parameters for the Gaussian initial conditions */
-  const float x0=0.1;                    // Centre(x)
-  const float y0=0.1;                    // Centre(y)
-  const float sigmax=0.03;               // Width(x)
-  const float sigmay=0.03;               // Width(y)
+  const float x0=3.0;                    // Centre(x)
+  const float y0=15.0;                    // Centre(y)
+  const float sigmax=1.0;               // Width(x)
+  const float sigmay=5.0;               // Width(y)
   const float sigmax2 = sigmax * sigmax; // Width(x) squared
   const float sigmay2 = sigmay * sigmay; // Width(y) squared
 
@@ -52,11 +52,15 @@ int main(){
   
   /* Time stepping parameters */
   const float CFL=0.9;   // CFL number 
-  const int nsteps=1500; // Number of time steps
+  const int nsteps=800; // Number of time steps
 
   /* Velocity */
-  const float velx=0.01; // Velocity in x direction
-  const float vely=0.01; // Velocity in y direction
+  const float velx=1.0; // Velocity in x direction
+  const float vely=0.0; // Velocity in y direction
+
+  const float vkarman = 0.41; // Von Karman's constant
+  const float ufric = 0.2; // Friction velocity
+  const float zrough = 1.0; // Roughness constant
   
   /* Arrays to store variables. These have NX+2 elements
      to allow boundary values to be stored at both ends */
@@ -130,14 +134,13 @@ int main(){
   FILE *initialfile;
   initialfile = fopen("initial.dat", "w");
   /* LOOP 4 */
-  // #pragma omp parallel for collapse(2)
-  // {
-    for (int i=0; i<NX+2; i++){
-      for (int j=0; j<NY+2; j++){
-        fprintf(initialfile, "%g %g %g\n", x[i], y[j], u[i][j]);
-      }
+  // CANNOT BE PARALLEL - If multiple threads are writing to the file at the same time 
+  // the file will be scrambled and out of order. Reason same as LOOP 10
+  for (int i=0; i<NX+2; i++){
+    for (int j=0; j<NY+2; j++){
+      fprintf(initialfile, "%g %g %g\n", x[i], y[j], u[i][j]);
     }
-  // }
+  }
   fclose(initialfile);
   
   /*** Update solution by looping over time steps ***/
@@ -170,11 +173,18 @@ int main(){
     /*** Calculate rate of change of u using leftward difference ***/
     /* Loop over points in the domain but not boundary values */
     /* LOOP 8 */
+
     #pragma omp parallel for collapse(2)
     {
       for (int i=1; i<NX+1; i++){
         for (int j=1; j<NY+1; j++){
-          dudt[i][j] = -velx * (u[i][j] - u[i-1][j]) / dx
+          float velx_z = 0;
+          if (y[j] > zrough){
+            velx_z = (ufric / vkarman) * log(y[j]/zrough);
+          }
+          dt = CFL / ( (fabs(velx_z) / dx) + (fabs(vely) / dy) );
+          // printf("%f\n",velx_z);
+          dudt[i][j] = -velx_z * (u[i][j] - u[i-1][j]) / dx
           - vely * (u[i][j] - u[i][j-1]) / dy;
         }
       }
@@ -199,7 +209,8 @@ int main(){
   FILE *finalfile;
   finalfile = fopen("final.dat", "w");
   /* LOOP 10 */
-  // CANNOT BE PARALLEL - This needs to be sequential or else the file will be scrambled and out of order
+  // CANNOT BE PARALLEL - If multiple threads are writing to the file at the same time 
+  // the file will be scrambled and out of order. Reason same as LOOP 4
   for (int i=0; i<NX+2; i++){
     for (int j=0; j<NY+2; j++){
       fprintf(finalfile, "%g %g %g\n", x[i], y[j], u[i][j]);
@@ -207,6 +218,18 @@ int main(){
   }
   
   fclose(finalfile);
+
+
+  /*** 2.4 Task for finding vertical distribution ***/
+  FILE *ydistfile;
+  ydistfile = fopen("ydist.dat", "w");
+  for (int i=0; i<NX+2; i++){
+    for (int j=0; j<NY+2; j++){
+      fprintf(ydistfile, "%g %g\n", y[j], u[i][j]);
+    }
+  }
+  
+  fclose(ydistfile);
 
   return 0;
 }
