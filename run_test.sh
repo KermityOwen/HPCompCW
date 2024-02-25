@@ -2,3 +2,4 @@
 ./advection2d
 gnuplot plot_final
 gnuplot plot_initial
+gnuplot plot_ydist

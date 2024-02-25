@@ -219,6 +219,20 @@ int main(){
   
   fclose(finalfile);
 
+
+  FILE *ydistfile;
+  ydistfile = fopen("ydist.dat", "w");
+  /* LOOP 10 */
+  // CANNOT BE PARALLEL - If multiple threads are writing to the file at the same time 
+  // the file will be scrambled and out of order. Reason same as LOOP 4
+  for (int i=0; i<NX+2; i++){
+    for (int j=0; j<NY+2; j++){
+      fprintf(ydistfile, "%g %g\n", y[j], u[i][j]);
+    }
+  }
+  
+  fclose(ydistfile);
+
   return 0;
 }
 
