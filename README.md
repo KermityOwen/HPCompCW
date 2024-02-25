@@ -4,6 +4,7 @@
 ## README
 The final program is "advection2D.c". However all the previous iterations for tasks 2.1 - 2.3 are also included in the folder "./prev_tasks/". All the plots for submission are in the "./submit_plots/" directory. The reasons for certain loops not being able to be parrallelise are in the source code itself in the form of comments.
 
+GITHUB LINK: https://github.com/KermityOwen/HPCompCW
 
 ---
 ## Requirements
