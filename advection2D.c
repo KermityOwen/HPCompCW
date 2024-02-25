@@ -229,7 +229,7 @@ int main(){
       vert_avg += u[i][j];
       // fprintf(ydistfile, "%g %g\n", y[j], u[i][j]);
     }
-    vert_avg = vert_avg/NY+2;
+    vert_avg = vert_avg/NY;
     fprintf(ydistfile, "%g %g\n", x[i], vert_avg);
   }
   
